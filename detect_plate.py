@@ -158,12 +158,12 @@ def show_files(path, all_files):
 
     return all_files
 
-f = show_files("/home/zeusee/plate/", [])
+f = show_files("imgs", [])
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', nargs='+', type=str, default='runs/train/exp/weights/last.pt', help='model.pt path(s)')
+    parser.add_argument('--weights', nargs='+', type=str, default='weights/best.pt', help='model.pt path(s)')
     parser.add_argument('--image', type=str, default='data/images/test.jpg', help='source')  # file/folder, 0 for webcam
     parser.add_argument('--img-size', type=int, default=640, help='inference size (pixels)')
     opt = parser.parse_args()

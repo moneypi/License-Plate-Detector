@@ -21,7 +21,7 @@ import onnx
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--weights', type=str, default='./yolov5s.pt', help='weights path')  # from yolov5/models/
+    parser.add_argument('--weights', type=str, default='weights/best.pt', help='weights path')  # from yolov5/models/
     parser.add_argument('--img-size', nargs='+', type=int, default=[640, 640], help='image size')  # height, width
     parser.add_argument('--batch-size', type=int, default=1, help='batch size')
     opt = parser.parse_args()
@@ -66,8 +66,15 @@ if __name__ == '__main__':
     print('\nStarting ONNX export with onnx %s...' % onnx.__version__)
     f = opt.weights.replace('.pt', '.onnx')  # filename
     model.fuse()  # only for ONNX
-    torch.onnx.export(model, img, f, verbose=False, opset_version=12, input_names=['data'],
-                      output_names=['stride_' + str(int(x)) for x in model.stride])
+    input_names=['data']
+    output_names=['stride_' + str(int(x)) for x in model.stride]
+    dynamic_axes = {}
+    for name in input_names:
+        dynamic_axes[name] = {2: 'height', 3: 'width'}
+    for name in output_names:
+        dynamic_axes[name] = {1: 'feature_maps'}
+    torch.onnx.export(model, img, f, verbose=False, opset_version=12, input_names=input_names,
+                      output_names=output_names, dynamic_axes=dynamic_axes)
 
     # Checks
     onnx_model = onnx.load(f)  # load onnx model
